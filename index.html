@@ -3,167 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECA Exam Portal</title>
+    <title>ECA Imp Questions Portal</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; text-align: center; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; font-weight: bold; }
-        .mode-selector { text-align: center; margin-bottom: 20px; }
-        button { padding: 10px 20px; cursor: pointer; border: none; border-radius: 5px; background-color: #3498db; color: white; transition: 0.3s; }
-        button:hover { background-color: #2980b9; }
-        .hidden { display: none; }
-        .question-card { border-bottom: 1px solid #eee; padding: 20px 0; }
-        .options-list { list-style: none; padding: 0; }
-        .option { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; }
-        .option:hover { background-color: #f9f9f9; }
-        .correct { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; }
-        .wrong { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
-        .explanation { margin-top: 10px; padding: 10px; background-color: #e7f3fe; border-left: 5px solid #2196F3; font-size: 0.9em; }
-        #results { text-align: center; padding: 20px; }
-        .descriptive-section { background-color: #fff3cd; padding: 20px; border-radius: 8px; margin-top: 40px; }
-        input[type="text"] { width: 80%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        body { font-family: 'Arial', sans-serif; background-color: #f0f2f5; line-height: 1.6; color: #333; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        header { text-align: center; border-bottom: 3px solid #2c3e50; margin-bottom: 30px; padding-bottom: 10px; }
+        h1 { margin: 0; color: #2c3e50; font-size: 28px; }
+        .author { font-style: italic; color: #7f8c8d; font-size: 18px; margin-top: 5px; }
+        .mode-selection { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-exam { background: #e74c3c; color: white; }
+        .btn-learn { background: #27ae60; color: white; }
+        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        .section-title { background: #34495e; color: white; padding: 10px 15px; border-radius: 4px; margin-top: 40px; }
+        .q-card { border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 8px; position: relative; }
+        .options { margin-top: 10px; }
+        .opt { display: block; padding: 10px; margin: 5px 0; background: #f8f9fa; border: 1px solid #eee; border-radius: 4px; cursor: pointer; }
+        .opt:hover { background: #e9ecef; }
+        .selected { background: #d1ecf1 !important; border-color: #bee5eb !important; }
+        .correct { background: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong { background: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        .explanation { margin-top: 15px; padding: 10px; background: #fff3cd; border-left: 4px solid #ffc107; font-size: 0.95em; display: none; }
+        input[type="text"] { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f2f2f2; }
+        .descriptive-item { margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #3498db; }
+        #result-box { display: none; text-align: center; padding: 20px; background: #d1ecf1; border-radius: 8px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>ECA Imp Questions</h1>
-    <div class="subtitle">Prepared by G. Nagarjuna</div>
+    <header>
+        <h1>ECA Imp Questions</h1>
+        <div class="author">Prepared by G. Nagarjuna</div>
+    </header>
 
-    <div id="setup" class="mode-selector">
-        <p>Select your mode to begin:</p>
-        <button onclick="startApp('exam')">Exam Mode</button>
-        <button onclick="startApp('learn')">Learn Mode</button>
+    <div class="mode-selection" id="mode-selector">
+        <button class="btn btn-exam" onclick="setMode('exam')">Online Exam Mode</button>
+        <button class="btn btn-learn" onclick="setMode('learn')">Learn Mode</button>
     </div>
 
-    <div id="quiz-area" class="hidden">
-        <div id="questions-container"></div>
-        <button id="submit-btn" style="margin-top: 20px; width: 100%;" onclick="evaluateExam()">Submit Exam</button>
+    <div id="result-box"></div>
+
+    <div id="exam-content" class="hidden" style="display:none;">
+        <div class="section-title">Objective Questions (MCQs)</div>
+        <div id="mcq-container"></div>
+
+        <div class="section-title">Fill in the Blanks</div>
+        <div id="fill-container"></div>
+
+        <div class="section-title">Match the Following</div>
+        <div id="match-container"></div>
+
+        <div style="text-align: center; margin: 40px 0;">
+            <button class="btn btn-exam" id="submit-btn" onclick="showResults()">Submit & Get Result</button>
+        </div>
     </div>
 
-    <div id="results" class="hidden">
-        <h2>Exam Results</h2>
-        <p id="score-text"></p>
-        <button onclick="location.reload()">Restart</button>
-    </div>
-
-    <div class="descriptive-section">
-        <h3>Descriptive Questions</h3>
-        <ol id="descriptive-list"></ol>
+    <div class="section-title">Descriptive Questions</div>
+    <div id="descriptive-container">
+        <div class="descriptive-item">1. Draw and explain astable multivibrator with merits and pulse width expression. </div>
+        <div class="descriptive-item">2. Explain Schmitt trigger with hysteresis loop and different methods to avoid hysteresis. </div>
+        <div class="descriptive-item">3. A capacitor is charged through a resistor from a DC source (Supply = 10V, R = 100 kΩ, C = 0.1 µF). Find: Voltage at 1τ, 2τ, and time to reach 63%. </div>
+        <div class="descriptive-item">4. Explain principle of Miller sweep circuit with necessary expressions. </div>
+        <div class="descriptive-item">5. Derive sweep speed error, displacement error, and transmission error. </div>
+        <div class="descriptive-item">6. Explain synchronization of astable blocking oscillators. </div>
+        <div class="descriptive-item">7. Explain Miller time base generator and derive sweep linearity. </div>
+        <div class="descriptive-item">8. Explain Bootstrap time base generator with circuit diagram and sweep error expression. </div>
+        <div class="descriptive-item">9. In an RC charging circuit (R = 50 kΩ, C = 0.02 µF, V = 12V), find: Time constant, Voltage at t=RC, and charging current at t=0. </div>
+        <div class="descriptive-item">10. Draw and explain astable multivibrator with merits and pulse width expression. </div>
+        <div class="descriptive-item">11. Derive sweep speed error, displacement error, and transmission error. </div>
+        <div class="descriptive-item">12. Explain the working of unidirectional and bidirectional gates using transistors. </div>
     </div>
 </div>
 
 <script>
-const mcqs = [
-    { q: "The output of a Schmitt Trigger is always a:", options: ["Square wave", "Triangular wave", "Sine wave", "Sawtooth wave"], correct: 0, exp: "Schmitt triggers are squaring circuits that produce a pulse/square wave regardless of input shape." },
-    { q: "A monostable multivibrator has how many stable states?", options: ["Two", "One", "Zero", "Three"], correct: 1, exp: "A monostable multivibrator (One-shot) has exactly one stable state." },
-    { q: "In a bistable multivibrator, the states are changed by:", options: ["RC timing", "Internal noise", "External trigger", "Continuous oscillation"], correct: 2, exp: "A bistable multivibrator requires an external trigger to flip from one state to the other." },
-    { q: "The time base generator circuit produces a waveform that varies:", options: ["Sinusoidally", "Logarithmically", "Exponentially", "Linearly"], correct: 3, exp: "Time base generators are designed to produce a linear ramp or sweep voltage." },
-    { q: "Which multivibrator is also known as a free-running multivibrator?", options: ["Astable", "Bistable", "Monostable", "Schmitt Trigger"], correct: 0, exp: "Astable multivibrators oscillate continuously without an external trigger." },
-    { q: "Which component combination is primarily responsible for timing?", options: ["L and C", "R and C", "R and L", "Transistor and Diode"], correct: 1, exp: "The RC time constant (τ = RC) determines the timing in most pulse circuits." },
-    { q: "In a UJT relaxation oscillator, the sweep occurs when the capacitor is:", options: ["Discharging", "Short-circuited", "Charging", "Fully dry"], correct: 2, exp: "The linear sweep or ramp is generated during the charging phase of the capacitor." },
-    { q: "The ideal flyback time for a sawtooth waveform should be:", options: ["Equal to sweep", "Very long", "Infinite", "Zero"], correct: 3, exp: "Ideally, the capacitor should discharge instantly (Zero time) to start the next sweep." },
-    { q: "The Miller Integrator is used specifically to improve:", options: ["Sweep linearity", "Signal power", "Phase shift", "Input impedance"], correct: 0, exp: "The Miller circuit uses negative feedback to achieve high sweep linearity." },
-    { q: "Hysteresis is a characteristic found in which circuit?", options: ["Bootstrap generator", "Schmitt Trigger", "Monostable", "Astable"], correct: 1, exp: "Hysteresis (difference between UTP and LTP) is the defining feature of a Schmitt Trigger." }
-];
+    let mode = '';
+    const mcqData = [
+        // Set 1 [cite: 3-22]
+        { q: "The output of a Schmitt Trigger is always a:", opts: ["Square wave", "Triangular wave", "sine wave", "Sawtooth wave"], ans: 0, exp: "Schmitt triggers convert any input into a square wave output." },
+        { q: "A monostable multivibrator has how many stable states?", opts: ["Two", "One", "Zero", "Three"], ans: 1, exp: "Monostable means one (mono) stable state." },
+        { q: "In a bistable multivibrator, the states are changed by:", opts: ["RC timing", "Internal noise", "External trigger", "Continuous oscillation"], ans: 2, exp: "Bistable circuits require an external trigger to flip states." },
+        { q: "The time base generator circuit produces a waveform that varies:", opts: ["Sinusoidally", "Logarithmically", "Exponentially", "Linearly"], ans: 3, exp: "Time base generators produce linear sweep/ramp voltages." },
+        { q: "Which multivibrator is also known as a free-running multivibrator?", opts: ["Astable", "Bistable", "Monostable", "Schmitt Trigger"], ans: 0, exp: "Astable multivibrators oscillate freely without triggers." },
+        { q: "Which component combination is primarily responsible for timing?", opts: ["L and C", "R and C", "R and L", "Transistor and Diode"], ans: 1, exp: "RC time constant determines the timing intervals." },
+        { q: "In a UJT relaxation oscillator, the sweep occurs when the capacitor is:", opts: ["Discharging", "Short-circuited", "Charging", "Fully dry"], ans: 2, exp: "The charging phase creates the sweep portion of the waveform." },
+        { q: "The ideal flyback time for a sawtooth waveform should be:", opts: ["Equal to sweep", "Very long", "Infinite", "Zero"], ans: 3, exp: "Ideal flyback is instantaneous (zero time)." },
+        { q: "The Miller Integrator is used specifically to improve:", opts: ["Sweep linearity", "Signal power", "Phase shift", "Input impedance"], ans: 0, exp: "Miller effect is used to linearize the sweep voltage." },
+        { q: "Hysteresis is a characteristic found in which circuit?", opts: ["Bootstrap generator", "Schmitt Trigger", "Monostable", "Astable"], ans: 1, exp: "Hysteresis prevents noise triggering in Schmitt circuits." },
+        // Set 2 (Duplicates as requested) [cite: 31-50]
+        { q: "The output of a Schmitt Trigger is always a (Duplicate):", opts: ["Square wave", "Triangular wave", "sine wave", "Sawtooth wave"], ans: 0, exp: "As seen previously, the result is a square wave." },
+        { q: "A monostable multivibrator has how many stable states? (Duplicate)", opts: ["Two", "One", "Zero", "Three"], ans: 1, exp: "Only one stable state exists." },
+        { q: "In a bistable multivibrator, the states are changed by (Duplicate):", opts: ["RC timing", "Internal noise", "External trigger", "Continuous oscillation"], ans: 2, exp: "Requires an external trigger signal." },
+        { q: "The time base generator circuit produces a waveform that varies (Duplicate):", opts: ["Sinusoidally", "Logarithmically", "Exponentially", "Linearly"], ans: 3, exp: "Produces a linear ramp." },
+        { q: "Which multivibrator is also known as a free-running multivibrator? (Duplicate)", opts: ["Astable", "Bistable", "Monostable", "Schmitt Trigger"], ans: 0, exp: "Astable oscillates on its own." },
+        { q: "Which component combination is primarily responsible for timing? (Duplicate)", opts: ["L and C", "R and C", "R and L", "Transistor and Diode"], ans: 1, exp: "Based on the RC time constant." },
+        { q: "In a UJT relaxation oscillator, the sweep occurs when the capacitor is (Duplicate):", opts: ["Discharging", "Short-circuited", "Charging", "Fully dry"], ans: 2, exp: "Charging creates the sweep." },
+        { q: "The ideal flyback time for a sawtooth waveform should be (Duplicate):", opts: ["Equal to sweep", "Very long", "Infinite", "Zero"], ans: 3, exp: "Ideally zero for a perfect sawtooth." },
+        { q: "The Miller Integrator is used specifically to improve (Duplicate):", opts: ["Sweep linearity", "Signal power", "Phase shift", "Input impedance"], ans: 0, exp: "Improves linearity." },
+        { q: "Hysteresis is a characteristic found in which circuit? (Duplicate)", opts: ["Bootstrap generator", "Schmitt Trigger", "Monostable", "Astable"], ans: 1, exp: "Unique to Schmitt Triggers." }
+    ];
 
-const fills = [
-    { q: "A Bistable multivibrator is commonly used as a binary storage element or ____________.", a: "Flip-Flop" },
-    { q: "The circuit using a high-gain amplifier with negative feedback for a linear ramp is a ____________ integrator.", a: "Miller" },
-    { q: "In an astable multivibrator, frequency is determined by the __________ constant.", a: "RC" },
-    { q: "The difference between the UTP and LTP in a Schmitt trigger is known as __________.", a: "Hysteresis" },
-    { q: "A ________________ generator is used in CRTs to deflect the electron beam horizontally.", a: "Time base" }
-];
+    const fillData = [
+        // Set 1 [cite: 24-28]
+        { q: "A Bistable multivibrator is commonly used as a binary storage element or _________________.", ans: "Flip-Flop" },
+        { q: "The circuit using a high-gain amplifier with negative feedback for a linear ramp is a ___________________________ integrator.", ans: "Miller" },
+        { q: "In an astable multivibrator, frequency is determined by the __________ constant.", ans: "RC" },
+        { q: "The difference between the UTP and LTP in a Schmitt trigger is known as __________.", ans: "Hysteresis" },
+        { q: "A _________________generator is used in CRTs to deflect the electron beam horizontally.", ans: "Time base" },
+        // Set 2 [cite: 52-56]
+        { q: "A Bistable multivibrator is commonly used as a binary storage element or _________________ (Duplicate).", ans: "Flip-Flop" },
+        { q: "A circuit that has only one stable state and is used for delay is the __________ multivibrator.", ans: "Monostable" },
+        { q: "In an astable multivibrator, frequency is determined by the __________ constant (Duplicate).", ans: "RC" },
+        { q: "The difference between the UTP and LTP in a Schmitt trigger is known as __________ (Duplicate).", ans: "Hysteresis" },
+        { q: "A _________________generator is used in CRTs to deflect the electron beam horizontally (Duplicate).", ans: "Time base" }
+    ];
 
-const descriptive = [
-    "Draw and explain astable multivibrator with merits and pulse width expression.",
-    "Explain Schmitt trigger with hysteresis loop and different methods to avoid hysteresis.",
-    "A capacitor is charged through a resistor from a DC source (Supply = 10V, R = 100 kΩ, C = 0.1 µF). Find voltage at one/two time constants.",
-    "Explain principle of Miller sweep circuit with necessary expressions.",
-    "Derive sweep speed error, displacement error, and transmission error.",
-    "Explain synchronization of astable blocking oscillators.",
-    "Explain Miller time base generator and derive sweep linearity.",
-    "Explain Bootstrap time base generator with circuit diagram and sweep error expression.",
-    "Explain the working of unidirectional and bidirectional gates using transistors."
-];
-
-let appMode = '';
-
-function startApp(mode) {
-    appMode = mode;
-    document.getElementById('setup').classList.add('hidden');
-    document.getElementById('quiz-area').classList.remove('hidden');
-    if(mode === 'learn') document.getElementById('submit-btn').classList.add('hidden');
-    renderQuestions();
-}
-
-function renderQuestions() {
-    const container = document.getElementById('questions-container');
-    const descList = document.getElementById('descriptive-list');
-
-    // Render MCQs
-    mcqs.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'question-card';
-        div.innerHTML = `<p><strong>Q${index+1}:</strong> ${item.q}</p>
-            <div class="options-list" id="mcq-o-${index}">
-                ${item.options.map((opt, i) => `<div class="option" onclick="handleSelect(${index}, ${i})">${opt}</div>`).join('')}
-            </div>
-            <div id="exp-${index}" class="explanation hidden">${item.exp}</div>`;
-        container.appendChild(div);
-    });
-
-    // Render Fills
-    fills.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'question-card';
-        div.innerHTML = `<p><strong>Fill ${index+1}:</strong> ${item.q}</p>
-            <input type="text" id="fill-${index}" placeholder="Type answer here...">
-            ${appMode === 'learn' ? `<button onclick="checkFill(${index})">Check</button><div id="fexp-${index}" class="explanation hidden">Correct Answer: ${item.a}</div>` : ''}`;
-        container.appendChild(div);
-    });
-
-    // Render Descriptive
-    descriptive.forEach(text => {
-        const li = document.createElement('li');
-        li.textContent = text;
-        descList.appendChild(li);
-    });
-}
-
-function handleSelect(qIdx, optIdx) {
-    const options = document.getElementById(`mcq-o-${qIdx}`).children;
-    const correctIdx = mcqs[qIdx].correct;
-
-    if(appMode === 'learn') {
-        for(let opt of options) opt.style.pointerEvents = 'none'; // Disable further clicks
-        options[optIdx].classList.add(optIdx === correctIdx ? 'correct' : 'wrong');
-        options[correctIdx].classList.add('correct');
-        document.getElementById(`exp-${qIdx}`).classList.remove('hidden');
-    } else {
-        for(let opt of options) opt.classList.remove('correct');
-        options[optIdx].classList.add('correct'); // Just highlight selection in exam mode
-        mcqs[qIdx].userAnswer = optIdx;
+    function setMode(m) {
+        mode = m;
+        document.getElementById('mode-selector').style.display = 'none';
+        document.getElementById('exam-content').style.display = 'block';
+        if(mode === 'learn') document.getElementById('submit-btn').style.display = 'none';
+        renderQuestions();
     }
-}
 
-function checkFill(index) {
-    const input = document.getElementById(`fill-${index}`);
-    const explanation = document.getElementById(`fexp-${index}`);
-    explanation.classList.remove('hidden');
-}
+    function renderQuestions() {
+        const mcqCont = document.getElementById('mcq-container');
+        mcqData.forEach((d, i) => {
+            const card = document.createElement('div');
+            card.className = 'q-card';
+            card.innerHTML = `<strong>Q${i+1}. ${d.q}</strong><div class="options" id="mcq-${i}">
+                ${d.opts.map((o, j) => `<div class="opt" onclick="checkMCQ(${i}, ${j})">${o}</div>`).join('')}
+            </div><div class="explanation" id="exp-${i}">${d.exp}</div>`;
+            mcqCont.appendChild(card);
+        });
 
-function evaluateExam() {
-    let score = 0;
-    mcqs.forEach((item, index) => {
-        if(item.userAnswer === item.correct) score++;
-    });
-    
-    document.getElementById('quiz-area').classList.add('hidden');
-    document.getElementById('results').classList.remove('hidden');
-    document.getElementById('score-text').innerText = `You scored ${score} out of ${mcqs.length} in the Objective Section!`;
-}
+        const fillCont = document.getElementById('fill-container');
+        fillData.forEach((d, i) => {
+            const card = document.createElement('div');
+            card.className = 'q-card';
+            card.innerHTML = `<strong>Q${i+21}. ${d.q}</strong>
+                <input type="text" id="fill-in-${i}" onchange="checkFill(${i})">
+                <div class="explanation" id="fexp-${i}">Correct Answer: ${d.ans}</div>`;
+            fillCont.appendChild(card);
+        });
+
+        // Match the Following [cite: 30, 58]
+        const matchCont = document.getElementById('match-container');
+        matchCont.innerHTML = `
+            <p><strong>Table 1 (General)</strong></p>
+            <table>
+                <tr><th>Column A</th><th>Column B</th><th>Answer</th></tr>
+                <tr><td>1. Monostable</td><td>A. One-shot Pulse</td><td><input type="text" placeholder="A, B..."></td></tr>
+                <tr><td>2. Bootstrap</td><td>B. Linear Sweep</td><td><input type="text"></td></tr>
+                <tr><td>3. Astable</td><td>C. Clock Pulse</td><td><input type="text"></td></tr>
+            </table>
+            <p><strong>Table 2 (Applications)</strong></p>
+            <table>
+                <tr><th>Column A</th><th>Column B</th><th>Answer</th></tr>
+                <tr><td>1. Miller Integrator</td><td>D. Negative Feedback</td><td><input type="text"></td></tr>
+                <tr><td>2. Schmitt Trigger</td><td>E. Squaring Circuit</td><td><input type="text"></td></tr>
+            </table>`;
+    }
+
+    function checkMCQ(qIdx, oIdx) {
+        const options = document.getElementById(`mcq-${qIdx}`).children;
+        const correct = mcqData[qIdx].ans;
+        
+        if(mode === 'learn') {
+            for(let opt of options) opt.classList.remove('correct', 'wrong');
+            options[oIdx].classList.add(oIdx === correct ? 'correct' : 'wrong');
+            options[correct].classList.add('correct');
+            document.getElementById(`exp-${qIdx}`).style.display = 'block';
+        } else {
+            for(let opt of options) opt.classList.remove('selected');
+            options[oIdx].classList.add('selected');
+            mcqData[qIdx].userAns = oIdx;
+        }
+    }
+
+    function checkFill(i) {
+        if(mode === 'learn') {
+            document.getElementById(`fexp-${i}`).style.display = 'block';
+        }
+    }
+
+    function showResults() {
+        let score = 0;
+        mcqData.forEach(d => { if(d.userAns === d.ans) score++; });
+        const rb = document.getElementById('result-box');
+        rb.style.display = 'block';
+        rb.innerHTML = `<h2>Exam Finished!</h2><p>Your Objective Score: <strong>${score} / ${mcqData.length}</strong></p><p>Review the descriptive questions below to complete your preparation.</p>`;
+        window.scrollTo(0,0);
+    }
 </script>
 
 </body>
